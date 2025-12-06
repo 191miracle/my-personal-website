@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Activities | Lovelle's Personal Website</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nankai-purple': '#711a5f',
+                        'nankai-purple-light': '#9c2b7b',
+                        'nankai-purple-dark': '#591249',
+                        'neutral-light': '#F5F5F5',
+                        'neutral-dark': '#333333'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'custom': '0 4px 20px rgba(0, 0, 0, 0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .glass-effect {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #711a5f;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #531DAB;
+        }
+        
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* 活动卡片悬停效果 */
+        .activity-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            height: auto;
+            min-height: 120px;
+        }
+        .activity-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(114, 46, 209, 0.12);
+        }
+        
+        /* 模态框动画 */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        /* 返回按钮样式 */
+        .back-btn {
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background-color: #591249;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(113, 26, 95, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-neutral-light text-neutral-dark font-sans pt-20">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-white shadow-md py-4">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-nankai-purple flex items-center">
+                <i class="fa fa-arrow-left mr-2"></i>
+                <span>Back to Home</span>
+            </a>
+            
+            <div>
+                <h1 class="text-xl font-semibold text-nankai-purple">All Activities</h1>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 所有活动展示页面 -->
+    <section class="py-16 px-4 md:px-6 bg-neutral-light min-h-screen">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">All Activities</h2>
+                <div class="w-24 h-1 bg-nankai-purple mx-auto mt-4"></div>
+                <p id="total-activities" class="mt-6 text-gray-600">Total: 6 activities (sorted by date, newest first)</p>
+            </div>
+            
+            <!-- 标签筛选区域 -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12" data-aos="fade-up" data-aos-delay="200">
+                <button class="filter-tag active bg-nankai-purple text-white text-sm font-medium px-5 py-2 rounded-full transition-all-300" data-filter="all">All</button>
+                <button class="filter-tag bg-white text-nankai-purple text-sm font-medium px-5 py-2 rounded-full transition-all-300 border border-nankai-purple" data-filter="community">Club Activity</button>
+                <button class="filter-tag bg-white text-nankai-purple text-sm font-medium px-5 py-2 rounded-full transition-all-300 border border-nankai-purple" data-filter="others">Others</button>
+                <button class="filter-tag bg-white text-nankai-purple text-sm font-medium px-5 py-2 rounded-full transition-all-300 border border-nankai-purple" data-filter="international">International Programs</button>
+                <button class="filter-tag bg-white text-nankai-purple text-sm font-medium px-5 py-2 rounded-full transition-all-300 border border-nankai-purple" data-filter="competitions">Competitions</button>
+                <button class="filter-tag bg-white text-nankai-purple text-sm font-medium px-5 py-2 rounded-full transition-all-300 border border-nankai-purple" data-filter="voluntary">Voluntary Works</button>
+                <button class="filter-tag bg-white text-nankai-purple text-sm font-medium px-5 py-2 rounded-full transition-all-300 border border-nankai-purple" data-filter="highschool">High School Activities</button>
+            </div>
+            
+            <!-- 活动卡片列表 -->
+            <div class="flex flex-col gap-6 mb-12">
+                <!-- 活动卡片 - Nankai Novice Cup 2025 -->
+                <div class="activity-card bg-white rounded-xl overflow-hidden shadow-custom" data-category="competitions" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-6 flex flex-col md:flex-row justify-between items-center">
+                        <div class="w-full md:w-3/4 mb-4 md:mb-0">
+                            <div class="flex flex-wrap items-center gap-3 mb-3">
+                                <span class="bg-nankai-purple-light bg-opacity-20 text-nankai-purple text-xs font-medium px-3 py-1 rounded-full">
+                                    Competitions
+                                </span>
+                                <span class="text-gray-500 text-sm">November 2025</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-dark mb-1">Nankai Novice Cup 2025</h3>
+                            <p class="text-gray-600 text-base">2025年南开大学新生英语辩论赛</p>
+                        </div>
+                        <div class="w-full md:w-1/4 flex justify-end">
+                            <button class="view-details text-nankai-purple hover:text-nankai-purple-dark font-medium flex items-center" data-id="4">
+                                View Details
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 活动卡片 - 清华大学人文与社科暑假课堂 -->
+                <div class="activity-card bg-white rounded-xl overflow-hidden shadow-custom" data-category="highschool" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-6 flex flex-col md:flex-row justify-between items-center">
+                        <div class="w-full md:w-3/4 mb-4 md:mb-0">
+                            <div class="flex flex-wrap items-center gap-3 mb-3">
+                                <span class="bg-nankai-purple-light bg-opacity-20 text-nankai-purple text-xs font-medium px-3 py-1 rounded-full">
+                                    High School Activities
+                                </span>
+                                <span class="text-gray-500 text-sm">July 2024</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-dark mb-1">Tsinghua University Summer School</h3>
+                            <p class="text-gray-600 text-base">2024年清华大学"全国优秀中学生人文与社科暑假课堂"</p>
+                        </div>
+                        <div class="w-full md:w-1/4 flex justify-end">
+                            <button class="view-details text-nankai-purple hover:text-nankai-purple-dark font-medium flex items-center" data-id="1">
+                                View Details
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 活动卡片 - 亚洲青年领袖论坛 -->
+                <div class="activity-card bg-white rounded-xl overflow-hidden shadow-custom" data-category="highschool" data-aos="fade-up" data-aos-delay="300">
+                    <div class="p-6 flex flex-col md:flex-row justify-between items-center">
+                        <div class="w-full md:w-3/4 mb-4 md:mb-0">
+                            <div class="flex flex-wrap items-center gap-3 mb-3">
+                                <span class="bg-nankai-purple-light bg-opacity-20 text-nankai-purple text-xs font-medium px-3 py-1 rounded-full">
+                                    High School Activities
+                                </span>
+                                <span class="text-gray-500 text-sm">June 2024</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-dark mb-1">Asia Youth Leaders</h3>
+                            <p class="text-gray-600 text-base">亚洲青年领袖论坛</p>
+                        </div>
+                        <div class="w-full md:w-1/4 flex justify-end">
+                            <button class="view-details text-nankai-purple hover:text-nankai-purple-dark font-medium flex items-center" data-id="2">
+                                View Details
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 活动卡片 - TEDx翻译志愿活动 -->
+                <div class="activity-card bg-white rounded-xl overflow-hidden shadow-custom" data-category="voluntary" data-aos="fade-up" data-aos-delay="400">
+                    <div class="p-6 flex flex-col md:flex-row justify-between items-center">
+                        <div class="w-full md:w-3/4 mb-4 md:mb-0">
+                            <div class="flex flex-wrap items-center gap-3 mb-3">
+                                <span class="bg-nankai-purple-light bg-opacity-20 text-nankai-purple text-xs font-medium px-3 py-1 rounded-full">
+                                    Voluntary Works
+                                </span>
+                                <span class="text-gray-500 text-sm">October 2023</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-dark mb-1">TEDx voluntary translation work</h3>
+                            <p class="text-gray-600 text-base">TEDx翻译志愿活动</p>
+                        </div>
+                        <div class="w-full md:w-1/4 flex justify-end">
+                            <button class="view-details text-nankai-purple hover:text-nankai-purple-dark font-medium flex items-center" data-id="3">
+                                View Details
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 返回主页按钮 -->
+            <div class="flex justify-center">
+                <a href="index.html" class="back-btn bg-nankai-purple text-white px-8 py-3 rounded-lg font-medium flex items-center shadow-md">
+                    <i class="fa fa-home mr-3"></i>
+                    <span>Back to Homepage</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-neutral-dark text-white py-12 px-4 md:px-6">
+        <div class="container mx-auto max-w-6xl">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-8 md:mb-0">
+                    <div class="flex items-center mb-4">
+                        <span class="text-xl font-bold">All Activities</span>
+                    </div>
+                    <p class="text-gray-400 max-w-md">
+                        © 2025 Lovelle's personal website. All rights reserved.
+                    </p>
+                </div>
+                
+                <div class="flex flex-col items-center md:items-end">
+                    <a href="index.html" class="text-gray-300 hover:text-white transition-all-300 mb-2">
+                        <i class="fa fa-arrow-up mr-2"></i>Back to Top
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 活动详情模态框 -->
+    <div id="activity-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
+        <div class="modal-overlay absolute inset-0 bg-black bg-opacity-50" onclick="closeModal()"></div>
+        <div class="modal-content bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative z-10">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" onclick="closeModal()">
+                <i class="fa fa-times text-xl"></i>
+            </button>
+            
+            <div id="modal-content" class="p-6 md:p-8">
+                <!-- 动态内容将通过JavaScript填充 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化AOS动画库
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+            
+            // 活动详情模态框
+            const viewDetailsButtons = document.querySelectorAll('.view-details');
+            
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const activityId = this.getAttribute('data-id');
+                    openActivityModal(activityId);
+                });
+            });
+            
+            // 标签筛选功能
+            const filterTags = document.querySelectorAll('.filter-tag');
+            const activityCards = document.querySelectorAll('.activity-card');
+            
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // 更新标签的活跃状态
+                    filterTags.forEach(t => {
+                        t.classList.remove('active', 'bg-nankai-purple', 'text-white');
+                        t.classList.add('bg-white', 'text-nankai-purple', 'border', 'border-nankai-purple');
+                    });
+                    this.classList.add('active', 'bg-nankai-purple', 'text-white');
+                    this.classList.remove('bg-white', 'text-nankai-purple', 'border', 'border-nankai-purple');
+                    
+                    // 获取筛选条件
+                    const filterValue = this.getAttribute('data-filter');
+                    
+                    // 筛选活动卡片
+                    activityCards.forEach(card => {
+                        const category = card.getAttribute('data-category');
+                        if (filterValue === 'all' || category === filterValue) {
+                            card.style.display = 'block';
+                            // 重新触发AOS动画
+                            AOS.refresh();
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+        // 活动数据 - 简化描述，移除成果展示和图片
+        const activitiesData = [
+            {
+                id: 1,
+                title: "Tsinghua University Summer School",
+                titleCn: "2024年清华大学'全国优秀中学生人文与社科暑假课堂'",
+                date: "July 2024",
+                category: "High School Activities",
+                description: "During the summer vacation, I was recommended by the high school as the only humanities student to take part in the THU summer school. Through the lectures, face-to-face connection with the admission office, model UN activities, etc., I expanded my horizon as well as developed my communication abilities. It's an invaluable experience during my high school life."
+                // 可以在这里添加PDF文件信息
+                // pdfs: [
+                //     {
+                //         name: "PDF文件名",
+                //         url: "PDF文件URL"
+                //     }
+                // ]
+            },
+            {
+                id: 2,
+                title: "Asia Youth Leaders",
+                titleCn: "亚洲青年领袖论坛",
+                date: "June 2024",
+                category: "High School Activities",
+                description: "Hosted by the Tianjin Municipal People's Government, this event invited participants to write papers on environmental issues and complete their projects in English. I was selected for the final stage both in 2023 and 2024. In 2023, there were 15 high school students from Tianjin in the finals, while in 2024, that number was 8.",
+                pdfs: [
+                    {
+                        name: "paper of 2023",
+                        url: "https://github.com/191miracle/my-personal-website/blob/main/2023%20AYL%20paper.pdf"
+                    },
+                    {
+                        name: "paper of 2024",
+                        url: "https://github.com/191miracle/my-personal-website/blob/main/2024%20AYL%20paper.pdf"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "TEDx voluntary translation work",
+                titleCn: "TEDx翻译志愿活动",
+                date: "October 2023",
+                category: "voluntary works",
+                description: "I participated in TEDx voluntary translation work, translating various TEDx talks into Chinese to help more people access these inspiring ideas.",
+                works: [
+                    {
+                        name: "To be named",
+                        url: "https://www.youtube.com/watch?v=T1uZ9Z8H7Io"
+                    },
+                    {
+                        name: "The romantic lead(er)",
+                        url: "https://www.youtube.com/watch?v=NnhD43sGdEM"
+                    },
+                    {
+                        name: "VR and AI in Education: The Future of Learning",
+                        url: "https://www.youtube.com/watch?v=XGkWh4v1hCE"
+                    },
+                    {
+                        name: "Peer pressure",
+                        url: "https://www.youtube.com/watch?v=mZzvX_Ouot8"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Nankai Novice Cup 2025",
+                titleCn: "2025年南开大学新生英语辩论赛",
+                date: "November 2025",
+                category: "competitions",
+                description: "I made it into the grand final in my very first British Parliamentary debate tournament.",
+                works: [
+                    {
+                        name: "Nankai Novice Cup 2025 Official Article",
+                        url: "https://mp.weixin.qq.com/s/sVQHy2tw5aFuBP1VIgti0Q"
+                    }
+                ]
+            }
+        ];
+        
+        // 更新活动总数
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalActivitiesElement = document.getElementById('total-activities');
+            if (totalActivitiesElement) {
+                totalActivitiesElement.textContent = `Total: ${activitiesData.length} activities (sorted by date, newest first)`;
+            }
+        });
+        
+        // 打开活动详情模态框
+        function openActivityModal(activityId) {
+            const activity = activitiesData.find(item => item.id == activityId);
+            if (!activity) return;
+            
+            const modalContent = document.getElementById('modal-content');
+            
+            // 生成PDF预览HTML
+            let pdfHtml = '';
+            if (activity.pdfs && activity.pdfs.length > 0) {
+                pdfHtml = `
+                <div class="mt-6">
+                    <h4 class="text-lg font-medium mb-3 text-nankai-purple">PDF Documents</h4>
+                    <p class="text-gray-600 mb-3">my immature works</p>
+                `;
+                activity.pdfs.forEach((pdf, index) => {
+                    pdfHtml += `
+                        <div class="mb-6">
+                            <h5 class="text-md font-medium mb-2">${pdf.name}</h5>
+                            <iframe src="${pdf.url}" width="100%" height="500px" frameborder="0"></iframe>
+                            <a href="${pdf.url}" target="_blank" class="text-sm text-nankai-purple hover:underline mt-2 inline-block">
+                                Open in new window
+                            </a>
+                        </div>
+                    `;
+                });
+                pdfHtml += `
+                </div>
+                `;
+            }
+            
+            // 生成作品链接HTML
+            let worksHtml = '';
+            if (activity.works && activity.works.length > 0) {
+                worksHtml = `
+                <div class="mt-4">
+                `;
+                activity.works.forEach((work, index) => {
+                    worksHtml += `
+                        <a href="${work.url}" target="_blank" class="text-nankai-purple hover:underline">
+                            ${work.name}
+                        </a>
+                    `;
+                });
+                worksHtml += `
+                </div>
+                `;
+            }
+            
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <span class="bg-nankai-purple-light bg-opacity-20 text-nankai-purple text-sm font-medium px-3 py-1 rounded-full">
+                        ${activity.category}
+                    </span>
+                    <span class="text-gray-500">${activity.date}</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">${activity.title}</h3>
+                <p class="text-gray-600 mb-4">${activity.titleCn}</p>
+                <div class="text-gray-700 py-4 border-t border-b">
+                    ${activity.description}
+                </div>
+                ${activity.id === 1 ? `
+                <div class="mt-4">
+                    <a href="https://mp.weixin.qq.com/s/wki6k3fsLiclS8fyQpjgwg" target="_blank" class="text-nankai-purple hover:underline">
+                        link: https://mp.weixin.qq.com/s/wki6k3fsLiclS8fyQpjgwg
+                    </a>
+                </div>` : ''}
+                ${pdfHtml}
+                ${worksHtml}
+            `;
+            
+            const modal = document.getElementById('activity-modal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('activity-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 点击模态框外部关闭模态框
+        window.onclick = function(event) {
+            const modal = document.getElementById('activity-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // 按ESC键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+</html>    
